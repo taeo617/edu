@@ -4,565 +4,298 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taeo.Design | Industrial Design Masterclass</title>
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+    <!--
+        폰트 전략
+        영문/숫자 → 'Helvetica Neue', Helvetica, Arial  (로컬 시스템 폰트)
+        한글        → Pretendard  (CDN)
+        CSS 폰트 스택은 문자 단위로 폴백되므로
+        Helvetica 가 커버하지 못하는 한글은 자동으로 Pretendard 로 렌더링됩니다.
+    -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="stylesheet" as="style" crossorigin
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
     <style>
+        /* ━━━ TOKENS ━━━ */
         :root {
-            --bg-color: #ffffff;
-            --text-main: #000000;
-            --text-sub: #666666;
-            --border-color: #e5e5e5;
-            --accent-color: #000000;
-            --bg-hover: #f9f9f9;
+            --bg:        #ffffff;
+            --fg:        #000000;
+            --sub:       #666666;
+            --border:    #e5e5e5;
+            --hover-bg:  #f9f9f9;
+            --pad-x:     clamp(20px, 5vw, 40px);
+            --section-y: clamp(80px, 11vw, 140px);
+            --font:      'Helvetica Neue', Helvetica, Arial,
+                         'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ━━━ RESET ━━━ */
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-
         body {
-            font-family: 'Helvetica Neue', 'Helvetica', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
-            word-break: keep-all;
+            font-family: var(--font);
+            background: var(--bg); color: var(--fg);
+            line-height: 1.6; overflow-x: hidden;
+            word-break: keep-all; overflow-wrap: break-word;
         }
-
-        body.no-scroll {
-            overflow: hidden;
-            height: 100vh;
-        }
-
-        /* --- Intro Popup --- */
-        .intro-popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: radial-gradient(circle at center, #2c2c2c 0%, #0a0a0a 100%);
-            color: #ffffff;
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            transition: opacity 0.6s cubic-bezier(0.165, 0.84, 0.44, 1), visibility 0.6s;
-        }
-
-        .intro-popup.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .popup-content {
-            padding: 40px;
-            max-width: 900px;
-            width: 100%;
-        }
-
-        .popup-content p {
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: #888;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-        }
-
-        .popup-content h1 {
-            font-size: clamp(24px, 5vw, 56px);
-            font-weight: 900;
-            line-height: 1.3;
-            letter-spacing: -2px;
-            margin-bottom: 50px;
-            word-break: keep-all;
-            text-align: center;
-        }
-
-        .popup-btn {
-            background-color: #ffffff;
-            color: var(--text-main);
-            border: none;
-            padding: 18px 48px;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.3s ease, background-color 0.3s ease;
-        }
-
-        .popup-btn:hover {
-            transform: scale(1.05);
-            background-color: #f0f0f0;
-        }
-
-        /* --- Global Elements --- */
-        a { text-decoration: none; color: inherit; }
+        body.no-scroll { overflow: hidden; height: 100vh; }
+        a  { text-decoration: none; color: inherit; }
         ul { list-style: none; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
-        .section-padding { padding: 140px 0; }
-        .line { width: 100%; height: 1px; background: var(--border-color); margin: 60px 0; }
 
-        /* --- Header --- */
+        /* ━━━ LAYOUT ━━━ */
+        .container  { max-width: 1400px; margin: 0 auto; padding: 0 var(--pad-x); }
+        .section-py { padding: var(--section-y) 0; }
+
+        /* ━━━ INTRO POPUP ━━━ */
+        .intro-popup {
+            position: fixed; inset: 0; z-index: 99999;
+            background: radial-gradient(circle at center, #2c2c2c 0%, #0a0a0a 100%);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            transition: opacity .6s cubic-bezier(.165,.84,.44,1), visibility .6s;
+        }
+        .intro-popup.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .popup-content {
+            padding: clamp(24px, 6vw, 48px);
+            max-width: min(860px, 92vw); width: 100%;
+        }
+        .popup-content p {
+            font-size: clamp(10px, 1.3vw, 13px); font-weight: 700;
+            letter-spacing: 2px; color: #888; text-transform: uppercase; margin-bottom: 18px;
+        }
+        .popup-content h1 {
+            font-size: clamp(18px, 4.2vw, 50px); font-weight: 900;
+            line-height: 1.38; letter-spacing: -.03em;
+            margin-bottom: clamp(32px, 5vw, 48px); word-break: keep-all;
+        }
+        .popup-btn {
+            background: #fff; color: #000; border: none; cursor: pointer;
+            font-family: var(--font);
+            font-size: clamp(13px, 1.5vw, 16px); font-weight: 700;
+            padding: clamp(12px, 1.8vw, 18px) clamp(28px, 4vw, 48px);
+            border-radius: 50px;
+            transition: transform .3s ease, background-color .3s ease;
+        }
+        .popup-btn:hover { transform: scale(1.05); background: #f0f0f0; }
+
+        /* ━━━ HEADER ━━━ */
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(15px);
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
-            border-bottom: 1px solid var(--border-color);
+            position: fixed; top: 0; left: 0; width: 100%; height: 68px; z-index: 1000;
+            background: rgba(255,255,255,.92);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 var(--pad-x); transition: box-shadow .3s;
         }
-
-        .logo { font-size: 20px; font-weight: 900; letter-spacing: -1px; }
-
-        nav .nav-menu { display: flex; gap: 12px; }
-
+        .logo { font-size: clamp(14px, 2vw, 20px); font-weight: 900; letter-spacing: -1px; white-space: nowrap; }
+        nav .nav-menu { display: flex; gap: 8px; }
         .nav-item {
-            font-size: 13px;
-            font-weight: 400;
-            padding: 8px 18px;
-            border: 1px solid var(--border-color);
-            border-radius: 40px;
-            transition: all 0.3s;
+            font-size: clamp(10px, 1.1vw, 13px); font-weight: 400;
+            padding: 7px clamp(10px, 1.4vw, 18px);
+            border: 1px solid var(--border); border-radius: 40px;
+            transition: all .25s; white-space: nowrap;
         }
-
-        .nav-item:hover {
-            background: var(--text-main);
-            color: #fff;
-            border-color: var(--text-main);
-        }
-
+        .nav-item:hover { background: var(--fg); color: #fff; border-color: var(--fg); }
         .btn-black {
-            background: var(--text-main);
-            color: #fff;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-size: 13px;
-            font-weight: 700;
-            transition: opacity 0.3s;
+            background: var(--fg); color: #fff;
+            padding: 9px 20px; border-radius: 40px;
+            font-size: clamp(10px, 1.1vw, 13px); font-weight: 700;
+            transition: opacity .3s; white-space: nowrap;
         }
+        .btn-black:hover { opacity: .75; }
+        @media (max-width: 680px) { nav { display: none; } }
 
-        .btn-black:hover { opacity: 0.8; }
-
-        /* --- Hero Section --- */
+        /* ━━━ HERO ━━━ */
         .hero {
-            padding-top: 220px;
-            padding-bottom: 120px;
-            border-bottom: 1px solid var(--border-color);
-            overflow: hidden;
+            padding-top:    clamp(100px, 17vw, 220px);
+            padding-bottom: clamp(56px, 9vw, 120px);
+            border-bottom: 1px solid var(--border); overflow: hidden;
         }
-
         .hero-big-text {
-            font-size: 12.5vw;
-            font-weight: 900;
-            line-height: 0.85;
-            letter-spacing: -0.04em;
-            margin-bottom: 60px;
-            text-align: center;
-            width: 100%;
+            font-size: clamp(9vw, 12.5vw, 180px); font-weight: 900;
+            line-height: .88; letter-spacing: -.04em;
+            margin-bottom: clamp(28px, 5vw, 60px);
+            text-align: center; width: 100%;
         }
-
-        .hero-description { display: flex; justify-content: flex-end; }
-        .hero-desc-content { max-width: 640px; }
+        .hero-description { display: flex; justify-content: flex-end; padding: 0 var(--pad-x); }
+        .hero-desc-content { max-width: 600px; }
         .hero-desc-content h2 {
-            font-size: 36px;
-            font-weight: 700;
-            line-height: 1.25;
-            margin-bottom: 24px;
-            letter-spacing: -1.5px;
+            font-size: clamp(18px, 3.2vw, 36px); font-weight: 700;
+            line-height: 1.3; margin-bottom: 16px; letter-spacing: -.04em;
         }
-
         .hero-desc-content p {
-            font-size: 18px;
-            color: var(--text-sub);
-            font-weight: 300;
-            line-height: 1.7;
+            font-size: clamp(13px, 1.6vw, 17px); color: var(--sub);
+            font-weight: 300; line-height: 1.82;
+        }
+        @media (max-width: 560px) {
+            .hero-description { justify-content: flex-start; }
+            .hero-desc-content { max-width: 100%; }
         }
 
-        /* --- Stats Section (About Mentor) --- */
-        .stats-section {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 80px;
-        }
-
+        /* ━━━ SECTION LABEL ━━━ */
         .section-label {
-            font-size: 15px;
-            font-weight: 400;
-            color: var(--text-main);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 24px;
-            border: 1px solid #dcdcdc;
-            border-radius: 50px;
-            align-self: flex-start;
-            letter-spacing: -0.2px;
+            font-size: 14px; font-weight: 400;
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 8px 22px; border: 1px solid #dcdcdc; border-radius: 50px;
+            align-self: flex-start; white-space: nowrap;
         }
 
-        .mentor-content h3 {
-            font-size: 56px;
-            font-weight: 700;
-            margin-bottom: 40px;
-            letter-spacing: -2px;
-            line-height: 1.1;
-        }
-
-        /* curriculum h3 재사용 */
-        .workflow-container h3 {
-            font-size: 56px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            letter-spacing: -2px;
-            line-height: 1.1;
-        }
-
-        .mentor-text {
-            font-size: 20px;
-            color: var(--text-main);
-            max-width: 850px;
-            margin-bottom: 20px;
-            font-weight: 300;
-            line-height: 1.8;
-        }
-
-        .stats-grid {
+        /* ━━━ TWO-COL GRID ━━━ */
+        .two-col {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            border-top: 1px solid var(--border-color);
-            margin-top: 80px;
+            grid-template-columns: 250px 1fr;
+            gap: clamp(24px, 5vw, 80px);
+        }
+        @media (max-width: 820px) { .two-col { grid-template-columns: 1fr; gap: 24px; } }
+
+        /* ━━━ MENTOR ━━━ */
+        .mentor-content h3,
+        .workflow-container h3 {
+            font-size: clamp(26px, 4.5vw, 56px); font-weight: 700;
+            margin-bottom: clamp(20px, 3vw, 36px);
+            letter-spacing: -.04em; line-height: 1.1;
+        }
+        .mentor-text {
+            font-size: clamp(14px, 1.6vw, 19px);
+            max-width: 820px; margin-bottom: 14px;
+            font-weight: 300; line-height: 1.9;
         }
 
+        /* ━━━ STATS GRID ━━━ */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            border-top: 1px solid var(--border);
+            margin-top: clamp(36px, 6vw, 80px);
+        }
+        @media (max-width: 680px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
         .stat-item {
-            padding: 60px 40px 20px 0;
-            border-right: 1px solid var(--border-color);
+            padding: clamp(22px, 4vw, 60px) clamp(10px, 3vw, 40px) 20px 0;
+            border-right: 1px solid var(--border);
         }
-
-        .stat-item:not(:first-child) {
-            padding-left: 40px;
+        .stat-item:not(:first-child) { padding-left: clamp(10px, 3vw, 40px); }
+        .stat-item:last-child { border-right: none; }
+        @media (max-width: 680px) {
+            .stat-item { border-bottom: 1px solid var(--border); }
+            .stat-item:nth-child(2n) { border-right: none; }
+            .stat-item:nth-last-child(-n+2) { border-bottom: none; }
         }
-
-        .stat-item:last-child {
-            border-right: none;
-        }
-
         .stat-title {
-            font-size: 13px;
-            color: var(--text-sub);
-            margin-bottom: 15px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 11px; color: var(--sub); margin-bottom: 10px;
+            font-weight: 500; text-transform: uppercase; letter-spacing: .5px;
         }
-
         .stat-value {
-            font-size: clamp(32px, 4vw, 64px);
-            font-weight: 900;
-            line-height: 1;
-            letter-spacing: -2px;
-            display: flex;
-            align-items: baseline;
-            flex-wrap: wrap;
+            font-size: clamp(24px, 3.8vw, 60px); font-weight: 900;
+            line-height: 1; letter-spacing: -.04em;
+            display: flex; align-items: baseline; flex-wrap: wrap;
         }
+        .stat-unit { font-size: 12px; font-weight: 400; margin-left: 5px; white-space: nowrap; }
 
-        .stat-unit {
-            font-size: 14px;
-            font-weight: 400;
-            margin-left: 5px;
-            color: var(--text-main);
-            white-space: nowrap;
-        }
-
-        /* --- Interactive Curriculum (Workflow) --- */
-        .phase-container { margin-bottom: 80px; }
+        /* ━━━ CURRICULUM ━━━ */
+        .phase-container { margin-bottom: clamp(36px, 6vw, 80px); }
         .phase-title {
-            font-size: 14px;
-            font-weight: 900;
-            color: var(--text-sub);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--text-main);
-            display: inline-block;
+            font-size: 12px; font-weight: 900; color: var(--sub);
+            margin-bottom: 12px; padding-bottom: 8px;
+            border-bottom: 2px solid var(--fg); display: inline-block;
         }
-
-        .workflow-row {
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-            overflow: hidden;
-            transition: background 0.3s;
-        }
-
-        .workflow-row:hover { background: var(--bg-hover); }
-
+        .workflow-row { border-bottom: 1px solid var(--border); cursor: pointer; overflow: hidden; transition: background .25s; }
+        .workflow-row:hover { background: var(--hover-bg); }
         .row-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 25px 0;
-            transition: all 0.3s;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: clamp(14px, 2.2vw, 24px) 0; transition: padding .3s;
         }
-
-        .workflow-row.active .row-header { padding-left: 20px; }
-
-        .wf-num {
-            font-size: 14px;
-            font-weight: 300;
-            color: var(--text-sub);
-            width: 80px;
-        }
-
-        .wf-title {
-            font-size: 22px;
-            font-weight: 700;
-            flex: 1;
-            letter-spacing: -0.5px;
-        }
-
-        .wf-difficulty {
-            font-size: 11px;
-            font-weight: 400;
-            padding: 4px 10px;
-            background: #eee;
-            border-radius: 4px;
-            margin-right: 15px;
-        }
-
+        .workflow-row.active .row-header { padding-left: 12px; }
+        .wf-num { font-size: 13px; font-weight: 300; color: var(--sub); width: clamp(32px, 5.5vw, 80px); flex-shrink: 0; }
+        .wf-title { font-size: clamp(13px, 2vw, 22px); font-weight: 700; flex: 1; letter-spacing: -.03em; padding-right: 8px; }
+        .wf-difficulty { font-size: clamp(9px, 1vw, 11px); font-weight: 400; padding: 4px 10px; background: #eee; border-radius: 4px; margin-right: 8px; white-space: nowrap; flex-shrink: 0; }
         .row-detail {
-            max-height: 0;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            padding: 0 0 0 80px;
+            max-height: 0; opacity: 0; overflow: hidden;
+            transition: max-height .4s cubic-bezier(.165,.84,.44,1), opacity .4s, padding .4s;
+            padding: 0 0 0 clamp(32px, 5.5vw, 80px);
+        }
+        .workflow-row.active .row-detail { max-height: 120px; opacity: 1; padding-bottom: 20px; }
+        .tool-group { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+        .tool-label { font-size: 11px; font-weight: 700; color: var(--sub); margin-right: 4px; }
+        .tool-tag { font-size: 11px; font-weight: 500; padding: 5px 13px; border: 1px solid var(--fg); border-radius: 30px; background: #fff; }
+        .notice-banner {
+            margin-top: 48px;
+            padding: clamp(14px, 2vw, 22px) clamp(18px, 3.5vw, 40px);
+            background: var(--fg); color: #fff; border-radius: 50px;
+            text-align: center; font-weight: 700;
+            font-size: clamp(11px, 1.4vw, 15px); letter-spacing: -.03em; line-height: 1.6;
         }
 
-        .workflow-row.active .row-detail {
-            max-height: 100px;
-            opacity: 1;
-            padding-bottom: 30px;
-        }
+        /* ━━━ INFO ━━━ */
+        .info-grid { display: grid; gap: 18px; }
+        .info-box { padding: clamp(22px, 4vw, 50px); background: #fcfcfc; border: 1px solid var(--border); border-radius: 4px; }
+        .info-box h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; color: var(--sub); }
+        .info-list li { margin-bottom: 14px; display: flex; justify-content: space-between; font-size: clamp(13px, 1.5vw, 16px); gap: 14px; }
+        .info-label { font-weight: 700; flex-shrink: 0; }
 
-        .tool-group { display: flex; gap: 8px; align-items: center; }
-        .tool-label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-right: 10px; }
-        .tool-tag {
-            font-size: 11px;
-            font-weight: 500;
-            padding: 6px 14px;
-            border: 1px solid var(--text-main);
-            border-radius: 30px;
-            background: #fff;
-        }
+        /* ━━━ REVIEWS ━━━ */
+        .reviews-list { display: flex; flex-direction: column; gap: 40px; margin-top: 14px; }
+        .review-item { border-bottom: 1px solid var(--border); padding-bottom: 36px; }
+        .review-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; gap: 10px; flex-wrap: wrap; }
+        .review-title { font-size: clamp(14px, 1.8vw, 19px); font-weight: 700; letter-spacing: -.03em; }
+        .review-date { font-size: 12px; color: var(--sub); font-weight: 300; white-space: nowrap; }
+        .review-text { font-size: clamp(13px, 1.4vw, 16px); font-weight: 300; line-height: 1.9; margin-bottom: 18px; max-width: 820px; }
+        .review-author { font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
+        .review-author::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--fg); }
 
-        /* --- Info / Fee --- */
-        .info-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
-        .info-box {
-            padding: 50px;
-            background: #fcfcfc;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-        }
-
-        .info-box h4 {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 30px;
-            color: var(--text-sub);
-        }
-
-        .info-list li {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 16px;
-        }
-
-        .info-label { font-weight: 700; }
-
-        /* --- Review Section --- */
-        .reviews-list {
-            display: flex;
-            flex-direction: column;
-            gap: 50px;
-            margin-top: 20px;
-        }
-
-        .review-item {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 40px;
-        }
-
-        .review-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .review-title {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .review-date {
-            font-size: 13px;
-            color: var(--text-sub);
-            font-weight: 300;
-        }
-
-        .review-text {
-            font-size: 16px;
-            font-weight: 300;
-            line-height: 1.8;
-            color: var(--text-main);
-            margin-bottom: 25px;
-            max-width: 850px;
-        }
-
-        .review-author {
-            font-size: 14px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .review-author::before {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 1px;
-            background-color: var(--text-main);
-        }
-
-        /* --- Sticky Bottom Bar --- */
+        /* ━━━ STICKY BAR ━━━ */
         .sticky-bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
-            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
-            z-index: 999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px 24px;
-            gap: 24px;
-            border-top: 1px solid var(--border-color);
+            position: fixed; bottom: 0; left: 0; width: 100%; z-index: 999;
+            background: rgba(255,255,255,.96);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 -4px 24px rgba(0,0,0,.08);
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: center; align-items: center;
+            padding: clamp(10px, 1.8vw, 16px) clamp(16px, 3vw, 24px);
+            gap: clamp(10px, 2.5vw, 24px);
         }
-
-        .sticky-text {
-            font-family: 'Pretendard', sans-serif;
-            font-size: 17px;
-            font-weight: 500;
-            color: var(--text-main);
-            letter-spacing: -0.3px;
-        }
-
-        .sticky-text strong {
-            font-weight: 800;
-        }
-
+        .sticky-text { font-size: clamp(12px, 1.5vw, 17px); font-weight: 500; letter-spacing: -.02em; white-space: nowrap; }
+        .sticky-text strong { font-weight: 800; }
         .sticky-btn {
-            background-color: var(--text-main);
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: 700;
-            padding: 14px 32px;
-            border-radius: 50px;
-            text-decoration: none;
-            transition: transform 0.2s, background-color 0.3s;
+            background: var(--fg); color: #fff;
+            font-family: var(--font); font-size: clamp(11px, 1.4vw, 15px); font-weight: 700;
+            padding: clamp(9px, 1.3vw, 14px) clamp(16px, 2.5vw, 32px);
+            border-radius: 50px; text-decoration: none; white-space: nowrap;
+            transition: transform .2s, background-color .3s;
         }
+        .sticky-btn:hover { transform: scale(1.02); background: #222; }
 
-        .sticky-btn:hover {
-            transform: scale(1.02);
-            background-color: #222;
-        }
-
-        /* --- Footer --- */
+        /* ━━━ FOOTER ━━━ */
         footer {
-            background: #000;
-            color: #fff;
-            padding: 120px 40px 100px;
+            background: #000; color: #fff;
+            /* 하단 sticky bar 높이만큼 충분한 padding-bottom 확보 */
+            padding: clamp(56px, 9vw, 120px) var(--pad-x) clamp(96px, 13vw, 148px);
             overflow: hidden;
         }
-
         .footer-logo {
-            font-size: clamp(40px, 18vw, 280px);
+            font-size: clamp(36px, 14vw, 240px);
             font-weight: 900;
-            letter-spacing: -10px;
-            line-height: 0.8;
-            opacity: 0.15;
-            margin-bottom: 60px;
-            white-space: nowrap;
-            margin-left: -5px;
+            /* clamp: min 값이 max 보다 작아야 함 → 음수 자간은 절댓값 기준으로 min < max */
+            letter-spacing: clamp(-8px, -0.5vw, -2px);
+            line-height: .85;
+            opacity: .14;
+            margin-bottom: clamp(28px, 4vw, 60px);
+            /* 텍스트가 컨테이너 밖으로 넘치지 않도록 */
+            white-space: nowrap; overflow: hidden; max-width: 100%;
         }
-
         .footer-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            font-size: 13px;
-            font-weight: 300;
-            color: #888;
+            display: flex; justify-content: space-between;
+            align-items: flex-end; gap: 14px; flex-wrap: wrap;
         }
-
-        @media (max-width: 900px) {
-            .stats-section { grid-template-columns: 1fr; gap: 40px; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); margin-top: 60px; }
-            .stat-item { border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 40px 20px 30px 0; }
-            .stat-item:not(:first-child) { padding-left: 0; }
-            .stat-item:nth-child(2n) { border-right: none; padding-left: 30px; padding-right: 0; }
-            .stat-item:nth-child(n+3) { border-bottom: none; }
-            .info-grid { grid-template-columns: 1fr; }
-            .hero-big-text { font-size: 80px; }
-            .wf-title { font-size: 18px; }
-            .row-detail { padding-left: 20px; }
-            .footer-logo { letter-spacing: -5px; }
-        }
-
-        @media (max-width: 600px) {
-            header { padding: 0 20px; }
-            .container { padding: 0 20px; }
-            .section-padding { padding: 100px 0; }
-            .hero { padding-top: 140px; padding-bottom: 80px; }
-            .hero-big-text { font-size: 13.5vw; letter-spacing: -0.03em; margin-bottom: 40px; }
-            .hero-desc-content h2 { font-size: 28px; }
-            .mentor-content h3 { font-size: 40px; }
-            .workflow-container h3 { font-size: 40px; }
-            .stat-value { font-size: 40px; }
-            .footer-logo { font-size: 48px; margin-bottom: 40px; }
-            .header-btns { display: none; }
-            .review-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-            .review-title { font-size: 18px; }
-            .reviews-list { gap: 40px; }
-            .sticky-bottom-bar { padding: 12px 20px; justify-content: space-between; gap: 12px; }
-            .sticky-text { font-size: 15px; }
-            .sticky-btn { font-size: 14px; padding: 12px 24px; }
-            footer { padding-bottom: 100px; }
-        }
+        .footer-bottom p { font-size: clamp(11px, 1.2vw, 13px); font-weight: 300; color: #888; line-height: 1.9; }
     </style>
 </head>
 <body class="no-scroll">
 
-    <!-- Intro Popup -->
+    <!-- ── Intro Popup ── -->
     <div id="intro-popup" class="intro-popup">
         <div class="popup-content">
             <p>TAEO.DESIGN MASTERCLASS</p>
@@ -571,14 +304,15 @@
         </div>
     </div>
 
+    <!-- ── Header ── -->
     <header>
         <div class="logo">Taeo.Design</div>
         <nav>
             <ul class="nav-menu">
-                <li><a href="#mentor" class="nav-item">About Mentor</a></li>
-                <li><a href="#review" class="nav-item">Review</a></li>
+                <li><a href="#mentor"     class="nav-item">About Mentor</a></li>
+                <li><a href="#review"     class="nav-item">Review</a></li>
                 <li><a href="#curriculum" class="nav-item">Curriculum</a></li>
-                <li><a href="#info" class="nav-item">Information</a></li>
+                <li><a href="#info"       class="nav-item">Information</a></li>
             </ul>
         </nav>
         <div class="header-btns">
@@ -586,20 +320,20 @@
         </div>
     </header>
 
+    <!-- ── Hero ── -->
     <section class="hero">
         <h1 class="hero-big-text">taeo.design<br>Workflow Class</h1>
-        <div class="container">
-            <div class="hero-description">
-                <div class="hero-desc-content">
-                    <h2>비즈니스를 설득하는<br>산업디자인 실무 워크플로우</h2>
-                    <p>현업 에이전시 인더스트리얼 디자이너와 함께 기획, Rhino, Keyshot, 그리고 AI 툴을 활용하여 리서치부터 렌더링 연출까지 하나의 완성된 프로젝트를 경험합니다.</p>
-                </div>
+        <div class="hero-description">
+            <div class="hero-desc-content">
+                <h2>비즈니스를 설득하는<br>산업디자인 실무 워크플로우</h2>
+                <p>현업 에이전시 인더스트리얼 디자이너와 함께 기획, Rhino, Keyshot, 그리고 AI 툴을 활용하여 리서치부터 렌더링 연출까지 하나의 완성된 프로젝트를 경험합니다.</p>
             </div>
         </div>
     </section>
 
-    <section id="mentor" class="container section-padding">
-        <div class="stats-section">
+    <!-- ── About Mentor ── -->
+    <section id="mentor" class="container section-py">
+        <div class="two-col">
             <div class="section-label">About Mentor</div>
             <div class="mentor-content">
                 <h3>Agency<br>Industrial Designer.</h3>
@@ -608,7 +342,6 @@
                 </p>
             </div>
         </div>
-
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="stat-title">Design Projects</div>
@@ -629,8 +362,9 @@
         </div>
     </section>
 
-    <section id="review" class="container section-padding">
-        <div class="stats-section">
+    <!-- ── Review ── -->
+    <section id="review" class="container section-py">
+        <div class="two-col">
             <div class="section-label">Review</div>
             <div class="mentor-content">
                 <h3>Student's<br>Voice.</h3>
@@ -672,248 +406,59 @@
         </div>
     </section>
 
-    <section id="curriculum" class="container section-padding">
-        <div class="stats-section">
+    <!-- ── Curriculum ── -->
+    <section id="curriculum" class="container section-py">
+        <div class="two-col">
             <div class="section-label">Curriculum</div>
             <div class="workflow-container">
                 <h3>20 Step ID Workflow.</h3>
-                <p style="margin-bottom: 40px; color: var(--text-sub); font-weight: 300;">각 단계를 클릭하여 활용 프로그램과 상세 프로세스를 확인하세요.</p>
+                <p style="margin-bottom:clamp(20px,4vw,40px);color:var(--sub);font-weight:300;font-size:clamp(12px,1.4vw,15px);">각 단계를 클릭하여 활용 프로그램과 상세 프로세스를 확인하세요.</p>
 
-                <!-- PHASE 01: PLANNING & RESEARCH -->
                 <div class="phase-container">
                     <span class="phase-title">Phase 01. Planning &amp; Research</span>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">01</span>
-                            <span class="wf-title">주제선정 (목표설정)</span>
-                            <span class="wf-difficulty">기본과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">02</span>
-                            <span class="wf-title">데스크 리서치</span>
-                            <span class="wf-difficulty">기본과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">07</span>
-                            <span class="wf-title">리서치 디벨롭</span>
-                            <span class="wf-difficulty">기본과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div>
-                        </div>
-                    </div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">01</span><span class="wf-title">주제선정 (목표설정)</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">02</span><span class="wf-title">데스크 리서치</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">07</span><span class="wf-title">리서치 디벨롭</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div></div></div>
                 </div>
 
-                <!-- PHASE 02: IDEATION -->
                 <div class="phase-container">
                     <span class="phase-title">Phase 02. Concept &amp; Ideation</span>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">03</span>
-                            <span class="wf-title">컨셉 방향성 정리 및 문서화</span>
-                            <span class="wf-difficulty">중급과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">04</span>
-                            <span class="wf-title">무드보드 제작</span>
-                            <span class="wf-difficulty">중급과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Pinterest</span></div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">05</span>
-                            <span class="wf-title">아이디어 러프스케치</span>
-                            <span class="wf-difficulty">기본과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group">
-                                <span class="tool-label">Programs</span>
-                                <span class="tool-tag">Vizcom</span>
-                                <span class="tool-tag">Nano banana</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">09</span>
-                            <span class="wf-title">CMFP 기획</span>
-                            <span class="wf-difficulty">기본과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">11</span>
-                            <span class="wf-title">아이디어 디테일 스케치</span>
-                            <span class="wf-difficulty">기본과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Hand Sketch / Tablet</span></div>
-                        </div>
-                    </div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">03</span><span class="wf-title">컨셉 방향성 정리 및 문서화</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">04</span><span class="wf-title">무드보드 제작</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Pinterest</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">05</span><span class="wf-title">아이디어 러프스케치</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Vizcom</span><span class="tool-tag">Nano banana</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">09</span><span class="wf-title">CMFP 기획</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">11</span><span class="wf-title">아이디어 디테일 스케치</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Hand Sketch / Tablet</span></div></div></div>
                 </div>
 
-                <!-- PHASE 03: VISUALIZATION -->
                 <div class="phase-container">
                     <span class="phase-title">Phase 03. Visualization &amp; 3D</span>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">13</span>
-                            <span class="wf-title">러프 모델링 + 렌더링</span>
-                            <span class="wf-difficulty">중급과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Rhino</span></div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">14</span>
-                            <span class="wf-title">디테일 모델링</span>
-                            <span class="wf-difficulty">중급과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Rhino</span></div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">16</span>
-                            <span class="wf-title">최종 렌더링</span>
-                            <span class="wf-difficulty">중급과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Keyshot</span></div>
-                        </div>
-                    </div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">13</span><span class="wf-title">러프 모델링 + 렌더링</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Rhino</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">14</span><span class="wf-title">디테일 모델링</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Rhino</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">16</span><span class="wf-title">최종 렌더링</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Keyshot</span></div></div></div>
                 </div>
 
-                <!-- PHASE 04: POST-PROCESSING -->
                 <div class="phase-container">
                     <span class="phase-title">Phase 04. Post-Production &amp; Output</span>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">17</span>
-                            <span class="wf-title">렌더링 후보정</span>
-                            <span class="wf-difficulty">중급과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group">
-                                <span class="tool-label">Programs</span>
-                                <span class="tool-tag">Lightroom</span>
-                                <span class="tool-tag">Photoshop</span>
-                                <span class="tool-tag">Nano banana</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">18</span>
-                            <span class="wf-title">연출샷 합성 및 후보정</span>
-                            <span class="wf-difficulty">심화과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group">
-                                <span class="tool-label">Programs</span>
-                                <span class="tool-tag">Nano banana</span>
-                                <span class="tool-tag">Krea</span>
-                                <span class="tool-tag">Photoshop</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">19</span>
-                            <span class="wf-title">시방서 작성</span>
-                            <span class="wf-difficulty">중급과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group">
-                                <span class="tool-label">Programs</span>
-                                <span class="tool-tag">Rhino</span>
-                                <span class="tool-tag">Illustrator</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">20</span>
-                            <span class="wf-title">프로젝트 정리</span>
-                            <span class="wf-difficulty">심화과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group">
-                                <span class="tool-label">Programs</span>
-                                <span class="tool-tag">Nano banana</span>
-                                <span class="tool-tag">Krea</span>
-                                <span class="tool-tag">Photoshop</span>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">17</span><span class="wf-title">렌더링 후보정</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Lightroom</span><span class="tool-tag">Photoshop</span><span class="tool-tag">Nano banana</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">18</span><span class="wf-title">연출샷 합성 및 후보정</span><span class="wf-difficulty">심화과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Nano banana</span><span class="tool-tag">Krea</span><span class="tool-tag">Photoshop</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">19</span><span class="wf-title">시방서 작성</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Rhino</span><span class="tool-tag">Illustrator</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">20</span><span class="wf-title">프로젝트 정리</span><span class="wf-difficulty">심화과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Nano banana</span><span class="tool-tag">Krea</span><span class="tool-tag">Photoshop</span></div></div></div>
                 </div>
 
-                <!-- PHASE 05: PRODUCTIVITY -->
                 <div class="phase-container">
                     <span class="phase-title">Phase 05. Productivity (일잘러의 습관)</span>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">*</span>
-                            <span class="wf-title">업무일지 및 작업파일 정리</span>
-                            <span class="wf-difficulty">기본과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group">
-                                <span class="tool-label">Programs</span>
-                                <span class="tool-tag">NotebookLM</span>
-                                <span class="tool-tag">Cloud Storage</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="workflow-row" onclick="toggleRow(this)">
-                        <div class="row-header">
-                            <span class="wf-num">*</span>
-                            <span class="wf-title">레퍼런스 및 데이터 관리</span>
-                            <span class="wf-difficulty">기본과정</span>
-                        </div>
-                        <div class="row-detail">
-                            <div class="tool-group">
-                                <span class="tool-label">Programs</span>
-                                <span class="tool-tag">Pinterest</span>
-                                <span class="tool-tag">Archive Tools</span>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">*</span><span class="wf-title">업무일지 및 작업파일 정리</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">NotebookLM</span><span class="tool-tag">Cloud Storage</span></div></div></div>
+                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">*</span><span class="wf-title">레퍼런스 및 데이터 관리</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Pinterest</span><span class="tool-tag">Archive Tools</span></div></div></div>
                 </div>
 
-                <div style="margin-top: 60px; padding: 25px 40px; background-color: var(--text-main); color: #fff; border-radius: 50px; text-align: center; font-weight: 700; font-size: 16px; letter-spacing: -0.5px;">
-                    ※ 3월 수강생 한정 : 실무 AI 디자인 원데이 워크샵 특별 진행
-                </div>
+                <div class="notice-banner">※ 3월 수강생 한정 : 실무 AI 디자인 원데이 워크샵 특별 진행</div>
             </div>
         </div>
     </section>
 
-    <section id="info" class="container section-padding">
-        <div class="stats-section">
+    <!-- ── Information ── -->
+    <section id="info" class="container section-py">
+        <div class="two-col">
             <div class="section-label">Information</div>
             <div class="info-grid">
                 <div class="info-box">
@@ -928,9 +473,10 @@
         </div>
     </section>
 
+    <!-- ── Footer ── -->
     <footer>
         <div class="footer-logo">Taeo.Design</div>
-        <div class="footer-bottom" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
+        <div class="footer-bottom">
             <div>
                 <p>Industrial Design Masterclass by Taeo</p>
                 <p>Current Agency Industrial Designer</p>
@@ -941,42 +487,54 @@
         </div>
     </footer>
 
-    <!-- Sticky Bottom Bar -->
+    <!-- ── Sticky Bottom Bar ── -->
     <div class="sticky-bottom-bar">
-        <div class="sticky-text">현재 상담 신청 <strong>5명 진행중</strong></div>
+        <div class="sticky-text">현재 상담 신청 <strong><span id="counter">3</span>명 진행중</strong></div>
         <a href="https://forms.gle/6G1VUJsRBsH34hoo9" target="_blank" rel="noopener noreferrer" class="sticky-btn">무료 상담 받기</a>
     </div>
 
     <script>
-        function toggleRow(element) {
-            element.classList.toggle('active');
-        }
+        /* ── 아코디언 ── */
+        function toggleRow(el) { el.classList.toggle('active'); }
 
-        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
-            anchor.addEventListener('click', function(e) {
+        /* ── 스무스 스크롤 ── */
+        document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+            a.addEventListener('click', function(e) {
                 e.preventDefault();
-                var target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    window.scrollTo({
-                        top: target.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                }
+                var t = document.querySelector(this.getAttribute('href'));
+                if (t) window.scrollTo({ top: t.offsetTop - 68, behavior: 'smooth' });
             });
         });
 
+        /* ── 헤더 그림자 ── */
         window.addEventListener('scroll', function() {
-            var header = document.querySelector('header');
-            header.style.boxShadow = window.scrollY > 50
-                ? '0 10px 40px rgba(0,0,0,0.03)'
-                : 'none';
+            document.querySelector('header').style.boxShadow =
+                window.scrollY > 50 ? '0 10px 40px rgba(0,0,0,.04)' : 'none';
         });
 
+        /* ── 팝업 닫기 ── */
         document.getElementById('enter-btn').addEventListener('click', function() {
             document.getElementById('intro-popup').classList.add('hidden');
             document.body.classList.remove('no-scroll');
             window.scrollTo(0, 0);
         });
+
+        /* ── 상담 카운터 ──
+           페이지 로드 시 3 또는 4 랜덤 시작
+           → 5초마다 +1 증가 → 6명에서 정지
+        ── */
+        (function() {
+            var current = Math.random() < 0.5 ? 3 : 4;
+            var MAX     = 6;
+            var el      = document.getElementById('counter');
+            el.textContent = current;
+
+            var timer = setInterval(function() {
+                if (current >= MAX) { clearInterval(timer); return; }
+                current++;
+                el.textContent = current;
+            }, 5000);
+        })();
     </script>
 </body>
 </html>
