@@ -9,8 +9,6 @@
         폰트 전략
         영문/숫자 → 'Helvetica Neue', Helvetica, Arial  (로컬 시스템 폰트)
         한글        → Pretendard  (CDN)
-        CSS 폰트 스택은 문자 단위로 폴백되므로
-        Helvetica 가 커버하지 못하는 한글은 자동으로 Pretendard 로 렌더링됩니다.
     -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="stylesheet" as="style" crossorigin
@@ -24,7 +22,8 @@
             --sub:       #666666;
             --border:    #e5e5e5;
             --hover-bg:  #f9f9f9;
-            --pad-x:     clamp(20px, 5vw, 40px);
+            /* 좌우 여백(마진)을 모바일에서 더 넓게 보이도록 기존 20px에서 28px로 상향 조정 */
+            --pad-x:     clamp(28px, 6vw, 40px);
             --section-y: clamp(80px, 11vw, 140px);
             --font:      'Helvetica Neue', Helvetica, Arial,
                          'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -111,8 +110,14 @@
 
         /* ━━━ HERO ━━━ */
         .hero {
-            padding-top:    clamp(100px, 17vw, 220px);
-            padding-bottom: clamp(56px, 9vw, 120px);
+            /* 접속 시 딱 메인 섹션만 화면에 꽉 차게 보이도록 100vh(svh) 설정 */
+            min-height: 100vh;
+            min-height: 100svh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-top: 68px; /* 헤더 높이 여백 */
+            padding-bottom: 100px; /* 하단 스티키 바에 가려지지 않도록 여유 확보 */
             border-bottom: 1px solid var(--border); overflow: hidden;
         }
         .hero-big-text {
@@ -246,44 +251,51 @@
         .review-author { font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
         .review-author::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--fg); }
 
-        /* ━━━ STICKY BAR ━━━ */
+        /* ━━━ STICKY BAR (모바일 특화 변경) ━━━ */
         .sticky-bottom-bar {
             position: fixed; bottom: 0; left: 0; width: 100%; z-index: 999;
-            background: rgba(255,255,255,.96);
+            /* 배경 블랙으로 변경, 경계선 조정 */
+            background: rgba(0, 0, 0, 0.96);
+            color: #ffffff;
             backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-            box-shadow: 0 -4px 24px rgba(0,0,0,.08);
-            border-top: 1px solid var(--border);
+            box-shadow: 0 -4px 24px rgba(0,0,0,.15);
+            border-top: 1px solid #222;
             display: flex; justify-content: center; align-items: center;
-            padding: clamp(10px, 1.8vw, 16px) clamp(16px, 3vw, 24px);
+            /* 높이 1.5배 증가 -> 세로 패딩(위아래)을 늘림 */
+            padding: clamp(16px, 3.5vw, 24px) clamp(16px, 3vw, 24px);
             gap: clamp(10px, 2.5vw, 24px);
         }
-        .sticky-text { font-size: clamp(12px, 1.5vw, 17px); font-weight: 500; letter-spacing: -.02em; white-space: nowrap; }
+        .sticky-text { 
+            /* 폰트 3pt 가량 증가 */
+            font-size: clamp(15px, 2.2vw, 20px); 
+            font-weight: 500; letter-spacing: -.02em; white-space: nowrap; 
+        }
         .sticky-text strong { font-weight: 800; }
         .sticky-btn {
-            background: var(--fg); color: #fff;
-            font-family: var(--font); font-size: clamp(11px, 1.4vw, 15px); font-weight: 700;
-            padding: clamp(9px, 1.3vw, 14px) clamp(16px, 2.5vw, 32px);
+            /* 버튼 흰색 배경, 검정 글씨로 반전 */
+            background: #ffffff; color: #000000;
+            font-family: var(--font); 
+            /* 버튼 폰트 사이즈도 함께 밸런스 조정 */
+            font-size: clamp(14px, 1.8vw, 17px); font-weight: 800;
+            padding: clamp(12px, 1.8vw, 16px) clamp(20px, 3.5vw, 36px);
             border-radius: 50px; text-decoration: none; white-space: nowrap;
             transition: transform .2s, background-color .3s;
         }
-        .sticky-btn:hover { transform: scale(1.02); background: #222; }
+        .sticky-btn:hover { transform: scale(1.02); background: #f0f0f0; }
 
         /* ━━━ FOOTER ━━━ */
         footer {
             background: #000; color: #fff;
-            /* 하단 sticky bar 높이만큼 충분한 padding-bottom 확보 */
             padding: clamp(56px, 9vw, 120px) var(--pad-x) clamp(96px, 13vw, 148px);
             overflow: hidden;
         }
         .footer-logo {
             font-size: clamp(36px, 14vw, 240px);
             font-weight: 900;
-            /* clamp: min 값이 max 보다 작아야 함 → 음수 자간은 절댓값 기준으로 min < max */
             letter-spacing: clamp(-8px, -0.5vw, -2px);
             line-height: .85;
             opacity: .14;
             margin-bottom: clamp(28px, 4vw, 60px);
-            /* 텍스트가 컨테이너 밖으로 넘치지 않도록 */
             white-space: nowrap; overflow: hidden; max-width: 100%;
         }
         .footer-bottom {
@@ -325,8 +337,9 @@
         <h1 class="hero-big-text">taeo.design<br>Workflow Class</h1>
         <div class="hero-description">
             <div class="hero-desc-content">
-                <h2>비즈니스를 설득하는<br>산업디자인 실무 워크플로우</h2>
-                <p>현업 에이전시 주니어 산업디자이너와 함께 기획, Rhino, Keyshot, 그리고 AI 툴을 활용하여 리서치부터 렌더링 연출까지 하나의 완성된 프로젝트를 경험합니다.</p>
+                <!-- 메인 카피 변경 반영 -->
+                <h2>일하는 방식을 배우는<br>산업디자인 실무 워크플로우</h2>
+                <p>현업 에이전시 주니어 산업디자이너와 함께 AI 툴을 활용하여 기획 리서치부터 렌더링 연출까지 하나의 완성된 프로젝트를 경험합니다.</p>
             </div>
         </div>
     </section>
@@ -520,8 +533,8 @@
         });
 
         /* ── 상담 카운터 ──
-           페이지 로드 시 3 또는 4 랜덤 시작
-           → 5초마다 +1 증가 → 6명에서 정지
+            페이지 로드 시 3 또는 4 랜덤 시작
+            → 5초마다 +1 증가 → 6명에서 정지
         ── */
         (function() {
             var current = Math.random() < 0.5 ? 3 : 4;
