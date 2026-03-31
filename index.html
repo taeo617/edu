@@ -90,9 +90,14 @@
             letter-spacing: 2px; color: #888; text-transform: uppercase; margin-bottom: 16px;
         }
         .popup-content h1 {
-            font-size: clamp(24px, 5.5vw, 52px); font-weight: 900;
+            /* 한 줄이 길어 모바일 화면을 벗어나지 않도록 최소 폰트사이즈 18px로 조정 */
+            font-size: clamp(18px, 5vw, 52px); font-weight: 900;
             line-height: 1.35; letter-spacing: -.03em;
             margin-bottom: clamp(32px, 5vw, 48px);
+        }
+        .popup-content h1 span {
+            display: inline-block;
+            white-space: nowrap;
         }
         .popup-btn {
             background: #fff; color: #000; border: none; cursor: pointer;
@@ -172,11 +177,15 @@
             transition: border-color 0.4s ease;
         }
         .hero-big-text {
-            font-size: clamp(42px, 12vw, 182px); font-weight: 900;
+            font-size: clamp(28px, 11.5vw, 182px); font-weight: 900;
             line-height: .9; letter-spacing: -.04em;
             margin-bottom: clamp(32px, 6vw, 60px);
             text-align: center; width: 100%;
             padding: 0 var(--pad-x);
+        }
+        .hero-big-text span {
+            display: inline-block;
+            white-space: nowrap;
         }
         .hero-description { display: flex; justify-content: flex-end; padding: 0 var(--pad-x); }
         .hero-desc-content { max-width: 600px; }
@@ -388,7 +397,10 @@
     <div id="intro-popup" class="intro-popup">
         <div class="popup-content">
             <p>TAEO.DESIGN MASTERCLASS</p>
-            <h1>현업 디자이너의 AI 활용 워크플로우를<br>직접 경험하는 밀착 과외</h1>
+            <h1>
+                <span>현업 디자이너의 AI 활용 워크플로우를</span><br>
+                <span>직접 경험하는 밀착 과외</span>
+            </h1>
             <button id="enter-btn" class="popup-btn">구경하기</button>
         </div>
     </div>
@@ -428,7 +440,10 @@
 
     <!-- ── Hero ── -->
     <section class="hero">
-        <h1 class="hero-big-text">taeo.design<br>Workflow Class</h1>
+        <h1 class="hero-big-text">
+            <span>taeo.design</span><br>
+            <span>Workflow Class</span>
+        </h1>
         <div class="hero-description">
             <div class="hero-desc-content">
                 <h2>일하는 방식을 배우는<br>산업디자인 실무 워크플로우</h2>
