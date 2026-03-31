@@ -455,13 +455,15 @@
             overflow: hidden;
         }
         .footer-logo {
-            font-size: clamp(42px, 15vw, 240px);
+            /* 텍스트가 화면을 벗어나 잘리거나 줄바꿈되지 않도록 폰트 크기 비율(vw)을 안전하게 축소 */
+            font-size: clamp(28px, 11vw, 220px);
             font-weight: 900;
-            letter-spacing: clamp(-2px, -0.5vw, -8px);
+            letter-spacing: clamp(-1px, -0.3vw, -6px);
             line-height: .9;
             opacity: .1;
             margin-bottom: clamp(32px, 6vw, 60px);
-            white-space: nowrap; overflow: hidden; max-width: 100%;
+            white-space: nowrap; 
+            width: 100%;
         }
         .footer-bottom {
             display: flex; justify-content: space-between;
@@ -824,8 +826,8 @@
                     // 마우스와 반응하여 커진 도트들엔 포인트 라임 컬러 적용
                     ctx.fillStyle = `rgba(202, 255, 51, ${Math.min(0.9, dot.r / 5)})`;
                 } else {
-                    // 기본 도트는 은은한 화이트 톤
-                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(0.3, dot.r / 3)})`;
+                    // 기본 도트는 기존보다 더 어두운 회색 느낌이 나도록 투명도를 크게 낮춤 (0.3 -> 0.08)
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(0.08, dot.r / 3)})`;
                 }
                 ctx.fill();
             }
