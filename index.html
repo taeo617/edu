@@ -102,7 +102,7 @@
         /* ━━━ INTRO POPUP ━━━ */
         .intro-popup {
             position: fixed; inset: 0; z-index: 99999;
-            background-color: #050505; /* 깊은 어둠의 바탕색 */
+            background-color: #121212; /* 배경색을 테마와 일치하는 #121212로 변경 */
             overflow: hidden; /* 블러 배경이 창 밖으로 삐져나가지 않도록 */
             color: #fff;
             display: flex; align-items: center; justify-content: center; text-align: center;
@@ -748,7 +748,7 @@
             popupCanvas.width = window.innerWidth;
             popupCanvas.height = window.innerHeight;
             dots = [];
-            const spacing = 28; // 도트 간격
+            const spacing = 20; // 도트 간격 (기존 28에서 20으로 더 촘촘하게 변경)
             for (let x = 0; x <= popupCanvas.width + spacing; x += spacing) {
                 for (let y = 0; y <= popupCanvas.height + spacing; y += spacing) {
                     dots.push({ 
