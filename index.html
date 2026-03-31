@@ -73,6 +73,17 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+        
+        /* 텍스트 드래그(선택) 영역 색상 변경 */
+        ::selection {
+            background: var(--accent);
+            color: var(--accent-text);
+        }
+        ::-moz-selection {
+            background: var(--accent);
+            color: var(--accent-text);
+        }
+
         body {
             font-family: var(--font);
             background: var(--bg); color: var(--fg);
@@ -141,12 +152,14 @@
         header {
             position: fixed; top: 0; left: 0; width: 100%; height: 68px; z-index: 1000;
             background: var(--header-bg);
+            color: var(--fg);
             backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 var(--pad-x); 
-            transition: box-shadow .3s, background-color 0.4s ease, border-color 0.4s ease;
+            transition: box-shadow .3s, background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
         }
+
         .logo { font-size: clamp(18px, 2.5vw, 22px); font-weight: 900; letter-spacing: -1px; white-space: nowrap; }
         nav .nav-menu { display: flex; gap: 8px; }
         .nav-item {
@@ -177,6 +190,7 @@
             background: var(--hover-bg);
             border-color: var(--fg);
         }
+
         .icon-sun, .icon-moon {
             width: 18px; height: 18px;
         }
@@ -189,21 +203,30 @@
             background: var(--accent); color: var(--accent-text);
             padding: 9px 20px; border-radius: 40px;
             font-size: clamp(13px, 1.2vw, 15px); font-weight: 800;
-            transition: opacity .3s, transform .2s, background-color 0.4s; white-space: nowrap;
+            transition: opacity .3s, transform .2s, background-color 0.4s, color 0.4s; white-space: nowrap;
         }
         .btn-contact:hover { opacity: .85; transform: scale(1.05); }
-        
+
         @media (max-width: 680px) { nav { display: none; } }
 
         /* ━━━ HERO ━━━ */
         .hero {
+            position: relative; /* 캔버스를 섹션 내부에 가두기 위해 추가 */
             min-height: 100vh; min-height: 100svh;
             display: flex; flex-direction: column; justify-content: center;
             padding-top: 68px; padding-bottom: 100px;
             border-bottom: 1px solid var(--border); overflow: hidden;
             transition: border-color 0.4s ease;
         }
+        /* 메인 히어로 섹션 전용 캔버스 */
+        .hero-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
         .hero-big-text {
+            position: relative; z-index: 1; /* 캔버스 위로 올리기 */
             font-size: clamp(28px, 11.5vw, 182px); font-weight: 900;
             line-height: .9; letter-spacing: -.04em;
             margin-bottom: clamp(32px, 6vw, 60px);
@@ -221,7 +244,10 @@
             display: inline-block;
             white-space: nowrap;
         }
-        .hero-description { display: flex; justify-content: flex-end; padding: 0 var(--pad-x); }
+        .hero-description { 
+            position: relative; z-index: 1; /* 캔버스 위로 올리기 */
+            display: flex; justify-content: flex-end; padding: 0 var(--pad-x); 
+        }
         .hero-desc-content { max-width: 600px; }
         .hero-desc-content h2 {
             font-size: clamp(22px, 3.5vw, 38px); font-weight: 700;
@@ -496,6 +522,9 @@
 
     <!-- ── Hero ── -->
     <section class="hero">
+        <!-- 메인 화면용 미세 도트 캔버스 -->
+        <canvas id="hero-canvas" class="hero-canvas"></canvas>
+
         <h1 class="hero-big-text">
             <span>taeo.design</span><br>
             <span>Workflow Class</span>
@@ -692,12 +721,19 @@
             });
         });
 
-        /* ── 헤더 그림자 ── */
+        /* ── 헤더 그림자 및 스크롤 이벤트 ── */
+        const header = document.querySelector('header');
         window.addEventListener('scroll', function() {
             // 다크모드일 때와 라이트모드일 때 그림자가 자연스럽게 유지되도록 투명도 조정
             const shadowColor = document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.04)';
-            document.querySelector('header').style.boxShadow =
-                window.scrollY > 50 ? `0 10px 40px ${shadowColor}` : 'none';
+            
+            if (window.scrollY > 50) {
+                header.style.boxShadow = `0 10px 40px ${shadowColor}`;
+                header.classList.add('scrolled'); // 스크롤 시 클래스 추가
+            } else {
+                header.style.boxShadow = 'none';
+                header.classList.remove('scrolled'); // 최상단일 때 클래스 제거
+            }
         });
 
         /* ── 인터랙티브 도트 캔버스 애니메이션 ── */
@@ -797,6 +833,102 @@
 
         initCanvas();
         animateCanvas(0);
+
+        /* ── 메인 화면(히어로) 미세 도트 캔버스 애니메이션 ── */
+        const heroCanvas = document.getElementById('hero-canvas');
+        const heroCtx = heroCanvas.getContext('2d');
+        const heroSection = document.querySelector('.hero');
+        let heroDots = [];
+        let heroMouse = { x: -1000, y: -1000 };
+        let heroLastMouseTime = Date.now();
+
+        function initHeroCanvas() {
+            heroCanvas.width = heroSection.offsetWidth;
+            heroCanvas.height = heroSection.offsetHeight;
+            heroDots = [];
+            const spacing = 18; // 팝업(28)보다 조밀하고 미세하게
+            for (let x = 0; x <= heroCanvas.width + spacing; x += spacing) {
+                for (let y = 0; y <= heroCanvas.height + spacing; y += spacing) {
+                    heroDots.push({ 
+                        baseX: x, baseY: y, 
+                        x: x, y: y, 
+                        r: 0.8, targetR: 0.8 // 기본 크기도 훨씬 작게
+                    });
+                }
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (isPopupVisible) initCanvas();
+            initHeroCanvas();
+        });
+
+        heroSection.addEventListener('mousemove', (e) => {
+            const rect = heroSection.getBoundingClientRect();
+            heroMouse.x = e.clientX - rect.left;
+            heroMouse.y = e.clientY - rect.top;
+            heroLastMouseTime = Date.now();
+        });
+        heroSection.addEventListener('mouseleave', () => {
+            heroMouse.x = -1000;
+            heroMouse.y = -1000;
+        });
+
+        function animateHeroCanvas(time) {
+            requestAnimationFrame(animateHeroCanvas);
+
+            heroCtx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
+
+            const now = Date.now();
+            const idleTime = now - heroLastMouseTime;
+            const isIdle = idleTime > 3000; 
+            const idleProgress = Math.min((idleTime - 3000) / 1000, 1);
+            
+            // 다크/라이트 모드에 따라 기본 도트 색상 유동적 변경
+            const isDark = document.body.classList.contains('dark-mode');
+            const baseRGB = isDark ? '255, 255, 255' : '0, 0, 0';
+
+            for (let i = 0; i < heroDots.length; i++) {
+                let dot = heroDots[i];
+                let dx = dot.baseX - heroMouse.x;
+                let dy = dot.baseY - heroMouse.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                
+                // 팝업(180반경, 3.5배 확대)보다 훨씬 작고 섬세하게 (120반경, 2배 확대)
+                if (dist < 120 && !isIdle) {
+                    const force = (120 - dist) / 120;
+                    dot.targetR = 1.0 + force * 2.0; 
+                    dot.x = dot.baseX + (dx / dist) * force * 3; 
+                    dot.y = dot.baseY + (dy / dist) * force * 3;
+                } else {
+                    dot.targetR = 0.8;
+                    dot.x += (dot.baseX - dot.x) * 0.1;
+                    dot.y += (dot.baseY - dot.y) * 0.1;
+                }
+
+                if (isIdle && idleProgress > 0) {
+                    const wave = Math.sin(time * 0.002 + dot.baseX * 0.015 + dot.baseY * 0.015);
+                    dot.targetR = 0.8 + wave * 0.4 * idleProgress; 
+                    dot.x = dot.baseX + Math.cos(time * 0.001 + dot.baseY * 0.015) * 1.5 * idleProgress; 
+                    dot.y = dot.baseY + Math.sin(time * 0.001 + dot.baseX * 0.015) * 1.5 * idleProgress;
+                }
+
+                dot.r += (dot.targetR - dot.r) * 0.2;
+
+                heroCtx.beginPath();
+                heroCtx.arc(dot.x, dot.y, Math.max(0.1, dot.r), 0, Math.PI * 2);
+                
+                if (dot.r > 1.2 && !isIdle) {
+                    heroCtx.fillStyle = `rgba(202, 255, 51, ${Math.min(0.8, dot.r / 3)})`;
+                } else {
+                    heroCtx.fillStyle = `rgba(${baseRGB}, ${Math.min(0.15, dot.r / 3)})`;
+                }
+                heroCtx.fill();
+            }
+        }
+
+        initHeroCanvas();
+        animateHeroCanvas(0);
 
         /* ── 팝업 닫기 ── */
         document.getElementById('enter-btn').addEventListener('click', function() {
