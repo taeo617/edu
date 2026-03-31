@@ -91,13 +91,24 @@
         /* ━━━ INTRO POPUP ━━━ */
         .intro-popup {
             position: fixed; inset: 0; z-index: 99999;
-            background: radial-gradient(circle at center, #2c2c2c 0%, #0a0a0a 100%);
+            background-color: #050505; /* 깊은 어둠의 바탕색 */
+            overflow: hidden; /* 블러 배경이 창 밖으로 삐져나가지 않도록 */
             color: #fff;
             display: flex; align-items: center; justify-content: center; text-align: center;
             transition: opacity .6s cubic-bezier(.165,.84,.44,1), visibility .6s;
         }
+        
+        /* 인터랙티브 캔버스 층 */
+        .popup-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none; /* 클릭 이벤트가 하단 버튼으로 통과되도록 */
+        }
+
         .intro-popup.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         .popup-content {
+            position: relative; z-index: 2; /* 캔버스 위로 올라오도록 설정 */
             padding: clamp(24px, 6vw, 48px) var(--pad-x);
             max-width: min(860px, 100%); width: 100%;
         }
@@ -354,11 +365,29 @@
         .review-author { font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; color: var(--sub); }
         .review-author::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--line-color); transition: background-color 0.4s ease; }
 
+        /* ━━━ STICKY BAR 무빙 그라데이션 애니메이션 ━━━ */
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         /* ━━━ STICKY BAR ━━━ */
         .sticky-bottom-bar {
             position: fixed; bottom: 0; left: 0; width: 100%; z-index: 999;
-            /* 배경색을 포인트 라임색으로 변경, 살짝의 반투명도를 유지하여 고급스러움 추가 */
-            background: rgba(202, 255, 51, 0.96); color: var(--accent-text);
+            /* 라임톤 3~4가지를 섞은 그라데이션 적용 */
+            background: linear-gradient(
+                270deg, 
+                rgba(202, 255, 51, 0.96), 
+                rgba(170, 255, 0, 0.96), 
+                rgba(230, 255, 100, 0.96), 
+                rgba(202, 255, 51, 0.96)
+            );
+            /* 그라데이션 크기를 넓게 잡고 애니메이션으로 이동시킴 */
+            background-size: 400% 400%;
+            animation: gradientMove 6s ease infinite;
+            
+            color: var(--accent-text);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 -4px 24px rgba(0,0,0,.1);
             border-top: 1px solid rgba(0,0,0,0.05);
@@ -419,6 +448,9 @@
 
     <!-- ── Intro Popup ── -->
     <div id="intro-popup" class="intro-popup">
+        <!-- 인터랙티브 도트 캔버스 -->
+        <canvas id="popup-canvas" class="popup-canvas"></canvas>
+
         <div class="popup-content">
             <p>TAEO.DESIGN MASTERCLASS</p>
             <h1>
@@ -668,10 +700,109 @@
                 window.scrollY > 50 ? `0 10px 40px ${shadowColor}` : 'none';
         });
 
+        /* ── 인터랙티브 도트 캔버스 애니메이션 ── */
+        const popupCanvas = document.getElementById('popup-canvas');
+        const ctx = popupCanvas.getContext('2d');
+        let dots = [];
+        let mouse = { x: -1000, y: -1000 };
+        let lastMouseTime = Date.now();
+        let isPopupVisible = true;
+
+        function initCanvas() {
+            popupCanvas.width = window.innerWidth;
+            popupCanvas.height = window.innerHeight;
+            dots = [];
+            const spacing = 28; // 도트 간격
+            for (let x = 0; x <= popupCanvas.width + spacing; x += spacing) {
+                for (let y = 0; y <= popupCanvas.height + spacing; y += spacing) {
+                    dots.push({ 
+                        baseX: x, baseY: y, 
+                        x: x, y: y, 
+                        r: 1, targetR: 1 
+                    });
+                }
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (isPopupVisible) initCanvas();
+        });
+
+        const introPopup = document.getElementById('intro-popup');
+        introPopup.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            lastMouseTime = Date.now(); // 마우스 움직임 감지 시간 초기화
+        });
+        introPopup.addEventListener('mouseleave', () => {
+            mouse.x = -1000;
+            mouse.y = -1000;
+        });
+
+        function animateCanvas(time) {
+            if (!isPopupVisible) return; // 팝업창 닫히면 애니메이션 종료 (최적화)
+            requestAnimationFrame(animateCanvas);
+
+            ctx.clearRect(0, 0, popupCanvas.width, popupCanvas.height);
+
+            const now = Date.now();
+            const idleTime = now - lastMouseTime;
+            const isIdle = idleTime > 3000; // 3초 이상 움직임 없을 시 true
+            const idleProgress = Math.min((idleTime - 3000) / 1000, 1); // 0~1로 부드럽게 전환
+
+            for (let i = 0; i < dots.length; i++) {
+                let dot = dots[i];
+                let dx = dot.baseX - mouse.x;
+                let dy = dot.baseY - mouse.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                
+                // 1. 마우스 반응형 인터랙션
+                if (dist < 180 && !isIdle) {
+                    const force = (180 - dist) / 180;
+                    dot.targetR = 1.5 + force * 3.5; // 마우스 주변부 크기 확대
+                    dot.x = dot.baseX + (dx / dist) * force * 5; // 마우스 반대편으로 살짝 밀림
+                    dot.y = dot.baseY + (dy / dist) * force * 5;
+                } else {
+                    dot.targetR = 1.2;
+                    // 원래 자리로 자연스럽게 복귀
+                    dot.x += (dot.baseX - dot.x) * 0.1;
+                    dot.y += (dot.baseY - dot.y) * 0.1;
+                }
+
+                // 2. 유휴(Idle) 상태 애니메이션 (3초 정지 시 미세한 물결 움직임)
+                if (isIdle && idleProgress > 0) {
+                    const wave = Math.sin(time * 0.002 + dot.baseX * 0.01 + dot.baseY * 0.01);
+                    dot.targetR = 1.2 + wave * 0.6 * idleProgress; // 크기 숨쉬기
+                    dot.x = dot.baseX + Math.cos(time * 0.001 + dot.baseY * 0.01) * 3 * idleProgress; // 미세한 위치 흔들림
+                    dot.y = dot.baseY + Math.sin(time * 0.001 + dot.baseX * 0.01) * 3 * idleProgress;
+                }
+
+                // 크기 보간 (부드러운 커짐/작아짐)
+                dot.r += (dot.targetR - dot.r) * 0.2;
+
+                // 그리기
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, Math.max(0.1, dot.r), 0, Math.PI * 2);
+                
+                if (dot.r > 2 && !isIdle) {
+                    // 마우스와 반응하여 커진 도트들엔 포인트 라임 컬러 적용
+                    ctx.fillStyle = `rgba(202, 255, 51, ${Math.min(0.9, dot.r / 5)})`;
+                } else {
+                    // 기본 도트는 은은한 화이트 톤
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(0.3, dot.r / 3)})`;
+                }
+                ctx.fill();
+            }
+        }
+
+        initCanvas();
+        animateCanvas(0);
+
         /* ── 팝업 닫기 ── */
         document.getElementById('enter-btn').addEventListener('click', function() {
-            document.getElementById('intro-popup').classList.add('hidden');
+            introPopup.classList.add('hidden');
             document.body.classList.remove('no-scroll');
+            isPopupVisible = false; // 캔버스 애니메이션 정지 (리소스 절약)
             window.scrollTo(0, 0);
         });
 
