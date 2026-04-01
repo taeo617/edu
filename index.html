@@ -356,9 +356,10 @@
         
         .wf-title { font-size: clamp(15px, 2.5vw, 22px); font-weight: 700; flex: 1; letter-spacing: -.02em; padding-right: 8px; min-width: 0; word-break: keep-all; overflow-wrap: break-word; }
         
+        /* 뱃지를 둥근 알약(Pill) 형태로 변경하고 좌우 여백을 살짝 넓힘 */
         .wf-difficulty { 
-            font-size: 13px; font-weight: 500; padding: 4px 10px; 
-            background: var(--badge-bg); border-radius: 4px; color: var(--fg); 
+            font-size: 13px; font-weight: 500; padding: 4px 12px; 
+            background: var(--badge-bg); border-radius: 50px; color: var(--fg); 
             white-space: nowrap; flex-shrink: 0; 
             transition: background-color 0.4s ease;
         }
@@ -566,7 +567,7 @@
             </div>
             <div class="stat-item">
                 <div class="stat-title">AI 워크샵</div>
-                <div class="stat-value">2<span class="stat-unit">회 진행</span></div>
+                <div class="stat-value">4<span class="stat-unit">회 진행</span></div>
             </div>
             <div class="stat-item">
                 <div class="stat-title">디자인 &amp; AI 툴</div>
@@ -662,7 +663,7 @@
                     <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">*</span><span class="wf-title">레퍼런스 및 데이터 관리</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Pinterest</span><span class="tool-tag">Archive Tools</span></div></div></div>
                 </div>
 
-                <div class="notice-banner">※ 4~5월 수강생 한정 : 실무 AI 디자인 원데이 워크샵 특별 진행</div>
+                <div class="notice-banner">※ 4~5월 수강생 한정 : 실무 AI 디자인 원데이 워크샵 진행</div>
             </div>
         </div>
     </section>
@@ -935,7 +936,7 @@
                 if (current >= MAX) { clearInterval(timer); return; }
                 current++;
                 el.textContent = current;
-            }, 5000);
+            }, 9000); // 9초 간격으로 수정
         })();
     </script>
 </body>
