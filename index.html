@@ -356,6 +356,19 @@
         
         .wf-title { font-size: clamp(15px, 2.5vw, 22px); font-weight: 700; flex: 1; letter-spacing: -.02em; padding-right: 8px; min-width: 0; word-break: keep-all; overflow-wrap: break-word; }
         
+        /* ━━━ 서브타이틀 (클릭 시 펼쳐지는 영역 내부에 위치) ━━━ */
+        .wf-subtitle { 
+            font-size: clamp(13.5px, 1.4vw, 15px); 
+            color: var(--sub); 
+            font-weight: 400; 
+            line-height: 1.6; 
+            letter-spacing: -.01em; 
+            word-break: keep-all; 
+            overflow-wrap: break-word; 
+            display: block;
+            margin-bottom: 14px; /* 아래 프로그램 태그와의 여백 */
+        }
+        
         /* 뱃지를 둥근 알약(Pill) 형태로 변경하고 좌우 여백을 살짝 넓힘 */
         .wf-difficulty { 
             font-size: 13px; font-weight: 500; padding: 4px 12px; 
@@ -368,11 +381,24 @@
             transition: max-height .4s cubic-bezier(.165,.84,.44,1), opacity .4s, padding .4s;
             padding: 0 0 0 clamp(28px, 4vw, 60px);
         }
-        .workflow-row.active .row-detail { max-height: 120px; opacity: 1; padding-bottom: 24px; }
+        /* 서브타이틀 내용이 길어져도 잘리지 않도록 max-height를 기존 120px에서 240px로 넉넉하게 수정 */
+        .workflow-row.active .row-detail { max-height: 240px; opacity: 1; padding-bottom: 24px; } 
         .tool-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .tool-label { font-size: 13px; font-weight: 700; color: var(--sub); margin-right: 4px; }
-        .tool-tag { font-size: 13px; font-weight: 500; padding: 6px 14px; border: 1px solid var(--border); border-radius: 30px; background: var(--bg); color: var(--fg); transition: border-color 0.4s ease, background-color 0.4s ease, color 0.4s ease; }
+        /* 태그(Figma 등)의 글씨가 좁은 화면에서 두 줄로 깨지지 않도록 white-space: nowrap 추가 */
+        .tool-tag { font-size: 13px; font-weight: 500; padding: 6px 14px; border: 1px solid var(--border); border-radius: 30px; background: var(--bg); color: var(--fg); transition: border-color 0.4s ease, background-color 0.4s ease, color 0.4s ease; white-space: nowrap; }
         
+        /* ━━━ 업데이트 예정 안내 ━━━ */
+        .phase-upcoming {
+            font-size: clamp(13px, 1.4vw, 14.5px);
+            color: var(--sub);
+            font-style: italic;
+            margin-top: 20px;
+            padding-left: 12px;
+            opacity: 0.7;
+            letter-spacing: -.02em;
+        }
+
         .notice-banner {
             margin-top: 48px;
             padding: clamp(16px, 3vw, 22px) clamp(20px, 4vw, 40px);
@@ -460,6 +486,33 @@
             }
             .sticky-text { font-size: 15px; line-height: 1.3; min-width: 0; text-align: center; }
             .sticky-btn { padding: 12px 20px; font-size: 15px; flex-shrink: 0; }
+        }
+
+        /* ━━━ SCROLL TO TOP ━━━ */
+        .scroll-top-btn {
+            position: fixed;
+            right: clamp(16px, 4vw, 32px);
+            /* 하단 스티키 바와 겹치지 않게 그 위로 배치 */
+            bottom: clamp(90px, 12vw, 100px); 
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: rgba(128, 128, 128, 0.15); /* 은은한 반투명 */
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            z-index: 998;
+            opacity: 0; visibility: hidden; transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(.165,.84,.44,1);
+        }
+        .scroll-top-btn:hover {
+            background: var(--fg);
+            color: var(--bg);
+            transform: translateY(-5px);
+        }
+        .scroll-top-btn.show {
+            opacity: 1; visibility: visible; transform: translateY(0);
         }
 
         /* ━━━ FOOTER ━━━ */
@@ -628,39 +681,216 @@
 
                 <div class="phase-container">
                     <span class="phase-title">Phase 01. Planning &amp; Research</span>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">01</span><span class="wf-title">주제선정 (목표설정)</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">02</span><span class="wf-title">데스크 리서치</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">07</span><span class="wf-title">리서치 디벨롭</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div></div></div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">01</span>
+                            <span class="wf-title">주제선정 (목표설정)</span>
+                            <span class="wf-difficulty">기본과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">방향성과 목표를 수립하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">02</span>
+                            <span class="wf-title">데스크 리서치</span>
+                            <span class="wf-difficulty">기본과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">시장 트렌드, 경쟁사 제품 분석, 기술 동향 등 기존의 데이터와 자료를 광범위하게 수집하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">03</span>
+                            <span class="wf-title">리서치 디벨롭</span>
+                            <span class="wf-difficulty">기본과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">핵심 인사이트를 도출하고, 실제 제품 형태나 기능으로 연결될 수 있도록 디자인 기준을 구체화하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="phase-container">
                     <span class="phase-title">Phase 02. Concept &amp; Ideation</span>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">03</span><span class="wf-title">컨셉 방향성 정리 및 문서화</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">04</span><span class="wf-title">무드보드 제작</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Pinterest</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">05</span><span class="wf-title">아이디어 러프스케치</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Vizcom</span><span class="tool-tag">Nano banana</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">09</span><span class="wf-title">CMFP 기획</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">11</span><span class="wf-title">아이디어 디테일 스케치</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Hand Sketch / Tablet</span></div></div></div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">04</span>
+                            <span class="wf-title">컨셉 방향성 정리 및 문서화</span>
+                            <span class="wf-difficulty">중급과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">제품의 핵심 컨셉과 방향성을 명확히 정의하고 문서로 정리하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">05</span>
+                            <span class="wf-title">무드보드 제작</span>
+                            <span class="wf-difficulty">중급과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">시각적 레퍼런스를 수집하여 제품의 전반적인 분위기와 스타일을 설정하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Pinterest</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">06</span>
+                            <span class="wf-title">아이디어 러프스케치</span>
+                            <span class="wf-difficulty">기본과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">떠오르는 아이디어를 빠르고 자유롭게 시각화하여 다양한 형태를 탐색하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Vizcom</span><span class="tool-tag">Nano banana</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">07</span>
+                            <span class="wf-title">CMFP 기획</span>
+                            <span class="wf-difficulty">기본과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">컨셉에 맞는 색상, 소재, 마감, 패턴을 기획하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Figma</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">08</span>
+                            <span class="wf-title">아이디어 디테일 스케치</span>
+                            <span class="wf-difficulty">기본과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">러프스케치를 바탕으로 구조와 비례 등 세부적인 디테일을 정교하게 다듬는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Hand Sketch / Tablet</span></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="phase-container">
                     <span class="phase-title">Phase 03. Visualization &amp; 3D</span>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">13</span><span class="wf-title">러프 모델링 + 렌더링</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Rhino</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">14</span><span class="wf-title">디테일 모델링</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Rhino</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">16</span><span class="wf-title">최종 렌더링</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Keyshot</span></div></div></div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">09</span>
+                            <span class="wf-title">러프 모델링 + 러프 렌더링</span>
+                            <span class="wf-difficulty">중급과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">기본 형태와 비례를 3D로 빠르게 구현하고 가볍게 렌더링하여 전체적인 형태감을 확인하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Rhino</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">10</span>
+                            <span class="wf-title">디테일 모델링</span>
+                            <span class="wf-difficulty">중급과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">실제 제품처럼 파팅 라인, 필렛 등 세부적인 디테일과 구조를 정교하게 완성하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Rhino</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">11</span>
+                            <span class="wf-title">최종 렌더링</span>
+                            <span class="wf-difficulty">중급과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">실제와 같은 재질, 조명, 환경을 적용하여 고품질의 최종 이미지를 완성하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Keyshot</span></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="phase-container">
                     <span class="phase-title">Phase 04. Post-Production &amp; Output</span>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">17</span><span class="wf-title">렌더링 후보정</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Lightroom</span><span class="tool-tag">Photoshop</span><span class="tool-tag">Nano banana</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">18</span><span class="wf-title">연출샷 합성 및 후보정</span><span class="wf-difficulty">심화과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Nano banana</span><span class="tool-tag">Krea</span><span class="tool-tag">Photoshop</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">19</span><span class="wf-title">시방서 작성</span><span class="wf-difficulty">중급과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Rhino</span><span class="tool-tag">Illustrator</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">20</span><span class="wf-title">프로젝트 정리</span><span class="wf-difficulty">심화과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Nano banana</span><span class="tool-tag">Krea</span><span class="tool-tag">Photoshop</span></div></div></div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">12</span>
+                            <span class="wf-title">렌더링 후보정</span>
+                            <span class="wf-difficulty">중급과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">렌더링된 이미지의 색감, 밝기, 대비 등을 디테일하게 보정하여 완성도를 높이는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Lightroom</span><span class="tool-tag">Photoshop</span><span class="tool-tag">Nano banana</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">13</span>
+                            <span class="wf-title">연출샷 합성 및 후보정</span>
+                            <span class="wf-difficulty">심화과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">AI를 사용해 제품이 실제 환경에 있는 것처럼 자연스럽게 합성하고 연출하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Nano banana</span><span class="tool-tag">Krea</span><span class="tool-tag">Photoshop</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">14</span>
+                            <span class="wf-title">프로젝트 정리</span>
+                            <span class="wf-difficulty">심화과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">최종 결과물을 포트폴리오나 프레젠테이션 형식으로 보기 좋게 레이아웃하고 마무리하는 단계</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Nano banana</span><span class="tool-tag">Krea</span><span class="tool-tag">Photoshop</span></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="phase-container">
                     <span class="phase-title">Phase 05. Productivity (일잘러의 습관)</span>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">*</span><span class="wf-title">업무일지 및 작업파일 정리</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">NotebookLM</span><span class="tool-tag">Cloud Storage</span></div></div></div>
-                    <div class="workflow-row" onclick="toggleRow(this)"><div class="row-header"><span class="wf-num">*</span><span class="wf-title">레퍼런스 및 데이터 관리</span><span class="wf-difficulty">기본과정</span></div><div class="row-detail"><div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Pinterest</span><span class="tool-tag">Archive Tools</span></div></div></div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">*</span>
+                            <span class="wf-title">업무일지 및 작업파일 정리</span>
+                            <span class="wf-difficulty">기본과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">체계적인 분류 시스템(PARA 등)을 구축하고 매일의 업무 히스토리를 효율적으로 기록하는 습관</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">NotebookLM</span><span class="tool-tag">Cloud Storage</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-row" onclick="toggleRow(this)">
+                        <div class="row-header">
+                            <span class="wf-num">*</span>
+                            <span class="wf-title">레퍼런스 및 데이터 관리</span>
+                            <span class="wf-difficulty">기본과정</span>
+                        </div>
+                        <div class="row-detail">
+                            <span class="wf-subtitle">영감을 주는 시각 자료와 중요 데이터를 필요할 때 즉시 꺼내 쓸 수 있도록 아카이빙하는 방법</span>
+                            <div class="tool-group"><span class="tool-label">Programs</span><span class="tool-tag">Pinterest</span><span class="tool-tag">Archive Tools</span><span class="tool-tag">COSMOS</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="phase-upcoming">- 추가 업데이트 예정</div>
                 </div>
 
                 <div class="notice-banner">※ 4~5월 수강생 한정 : 실무 AI 디자인 원데이 워크샵 진행</div>
@@ -702,6 +932,14 @@
         <a href="https://forms.gle/6G1VUJsRBsH34hoo9" target="_blank" rel="noopener noreferrer" class="sticky-btn">무료 상담 받기</a>
     </div>
 
+    <!-- ── Scroll To Top Button ── -->
+    <button id="scroll-top-btn" class="scroll-top-btn" aria-label="Scroll to top">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+    </button>
+
     <script>
         /* ── 다크모드/라이트모드 토글 ── */
         const themeToggle = document.getElementById('theme-toggle');
@@ -724,8 +962,11 @@
             });
         });
 
-        /* ── 헤더 그림자 및 스크롤 이벤트 ── */
+        /* ── 헤더 그림자, 스크롤 & 위로 가기 버튼 이벤트 ── */
         const header = document.querySelector('header');
+        const scrollTopBtn = document.getElementById('scroll-top-btn');
+        const infoSection = document.getElementById('info');
+
         window.addEventListener('scroll', function() {
             const shadowColor = document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.04)';
             
@@ -734,6 +975,22 @@
             } else {
                 header.style.boxShadow = 'none';
             }
+
+            // Information 섹션이 화면에 보이면 위로 가기 버튼 나타남
+            if (infoSection) {
+                const infoRect = infoSection.getBoundingClientRect();
+                // 화면 높이 안에 Information 섹션의 상단이 들어왔을 때
+                if (infoRect.top < window.innerHeight) {
+                    scrollTopBtn.classList.add('show');
+                } else {
+                    scrollTopBtn.classList.remove('show');
+                }
+            }
+        });
+
+        // 위로 가기 버튼 클릭 시 최상단으로 스크롤
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         /* ── 인터랙티브 도트 캔버스 애니메이션 ── */
